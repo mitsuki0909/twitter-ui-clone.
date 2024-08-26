@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter風UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .tweet-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .tweet-box img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .tweet-box textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .tweet-list {
+            list-style: none;
+            padding: 0;
+        }
+        .tweet {
+            background-color: #e8f4f8;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tweet h3 {
+            margin: 0 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="tweet-box">
+            <img src="https://via.placeholder.com/50" alt="User Icon">
+            <textarea placeholder="今どうしてる？"></textarea>
+        </div>
+        <ul class="tweet-list">
+            <!-- ツイートがここに表示される -->
+        </ul>
+    </div>
+    <script>
+        document.querySelector('textarea').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                let tweetText = this.value;
+                if (tweetText.trim() !== "") {
+                    let tweetList = document.querySelector('.tweet-list');
+                    let newTweet = document.createElement('li');
+                    newTweet.classList.add('tweet');
+                    newTweet.innerHTML = `
+    <h3>不二周助</h3>
+    <p>${tweetText}</p>
+    <button class="delete-btn">削除</button>
+`;
+
+                    tweetList.prepend(newTweet);
+                    // ローカルストレージに保存
+saveTweet(tweetText);
+
+                    this.value = "";
+                }
+            }
+        });
+
+        function saveTweet(tweetText) {
+    let tweets = JSON.parse(localStorage.getItem('tweets')) || [];
+    tweets.push(tweetText);
+    localStorage.setItem('tweets', JSON.stringify(tweets));
+}
+
+document.querySelector('.tweet-list').addEventListener('click', function(event) {
+    if (event.target.classList.contains('delete-btn')) {
+        let tweet = event.target.closest('li');
+        let tweetText = tweet.querySelector('p').textContent;
+        removeTweet(tweetText); // ローカルストレージから削除
+        tweet.remove();
+    }
+});
+
+function removeTweet(tweetText) {
+    let tweets = JSON.parse(localStorage.getItem('tweets')) || [];
+    tweets = tweets.filter(function(t) {
+        return t !== tweetText;
+    });
+    localStorage.setItem('tweets', JSON.stringify(tweets));
+}
+
+function loadTweets() {
+    let tweets = JSON.parse(localStorage.getItem('tweets')) || [];
+    let tweetList = document.querySelector('.tweet-list');
+    tweets.forEach(function(tweetText) {
+        let newTweet = document.createElement('li');
+        newTweet.classList.add('tweet');
+        newTweet.innerHTML = `
+            <h3>不二周助</h3>
+            <p>${tweetText}</p>
+            <button class="delete-btn">削除</button>
+        `;
+        tweetList.prepend(newTweet);
+    });
+}
+
+loadTweets();
+
+    </script>
+    
+</body>
+</html>
